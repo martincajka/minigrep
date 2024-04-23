@@ -15,8 +15,8 @@ pub fn find_matches(
 
 #[derive(Parser)]
 pub struct Cli {
-    pattern: String,
-    path: std::path::PathBuf,
+    pub pattern: String,
+    pub path: std::path::PathBuf,
 }
 
 #[cfg(test)]
