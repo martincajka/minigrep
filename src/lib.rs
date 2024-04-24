@@ -7,7 +7,7 @@ pub fn find_matches(
 ) -> Result<(), std::io::Error> {
     for line in content.lines() {
         if line.contains(pattern) {
-            return writeln!(writer, "{}", line);
+            writeln!(writer, "{}", line)?;
         }
     }
     Ok(())
