@@ -19,6 +19,13 @@ OUTPUT:
 - file name + line number + line + colorized <SOMETHING>
 - file name + line number + line + colorized <SOMETHING> + context
 
+FLAGS:
+- color --color [HEX_COLOR]
+- line number -l --line-number
+- file name -h --file-name
+- context -C --context [NUMBER]
+- count -c --count
+
 
 EXAMPLES:
 - search for a string in a file:
@@ -47,3 +54,20 @@ EXAMPLES:
 
 - search for a string in a file and show the file name:
   $ mgrep "string" file.txt --file-name
+
+
+How to implement:
+- read the arguments
+- read the input
+- search for the string in the input
+- print the output
+
+- read the arguments:
+  RULES:
+  - the first argument are the flags ()
+  - the second argument are args with values ()
+  - the third argument is pattern
+  - the rest of the arguments are files
+    - if no files are provided, read from standard input
+    - if 1 file is provided, read from that file
+    - if multiple files are provided, read from those files
