@@ -13,7 +13,7 @@ pub fn find_matches(
     Ok(())
 }
 
-#[derive(Parser)]
+#[derive(Parser, Debug)]
 pub struct Cli {
     pub pattern: String,
     pub path: std::path::PathBuf,

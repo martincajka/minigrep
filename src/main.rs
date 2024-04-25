@@ -1,13 +1,12 @@
 use anyhow::{Context, Result};
 use clap::Parser;
-use log::info;
+use log::debug;
 
 fn main() -> Result<()> {
     env_logger::init();
-    info!("Starting up");
+    debug!("Start parsing cli args");
     let args = minigrep::Cli::parse();
-
-    info!("pattern: {:?}, path: {:?}", args.pattern, args.path);
+    debug!("{:?}", args);
 
     let content = std::fs::read_to_string(&args.path)
         .with_context(|| format!("Error reading file `{:?}`", &args.path))?;
