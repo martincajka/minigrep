@@ -13,11 +13,11 @@ pub fn find_matches(
     Ok(())
 }
 
-#[derive(Parser)]
+#[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 pub struct Cli {
-    #[arg(short, long,action = clap::ArgAction::SetTrue)]
-    pub count: bool,
+    #[arg(short, long, action = clap::ArgAction::SetTrue)]
+    pub count: Option<bool>,
     pub pattern: String,
     pub path: Option<Vec<std::path::PathBuf>>,
 }
