@@ -1,4 +1,4 @@
-use clap::Parser;
+use clap::{command, Parser};
 
 pub fn find_matches(
     content: &str,
@@ -13,10 +13,13 @@ pub fn find_matches(
     Ok(())
 }
 
-#[derive(Parser, Debug)]
+#[derive(Parser)]
+#[command(version, about, long_about = None)]
 pub struct Cli {
+    #[arg(short, long,action = clap::ArgAction::SetTrue)]
+    pub count: bool,
     pub pattern: String,
-    pub path: std::path::PathBuf,
+    pub path: Option<Vec<std::path::PathBuf>>,
 }
 
 #[cfg(test)]
