@@ -18,6 +18,8 @@ pub fn find_matches(
 pub struct Cli {
     #[arg(short, long, action = clap::ArgAction::SetTrue)]
     pub count: Option<bool>,
+    #[arg(short, long, action = clap::ArgAction::SetTrue)]
+    pub line: Option<bool>,
     pub pattern: String,
     pub path: Option<Vec<std::path::PathBuf>>,
 }
