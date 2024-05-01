@@ -1,5 +1,7 @@
+pub mod cli;
+
 use anyhow::{Context, Result};
-use clap::{command, Parser};
+use cli::Cli;
 use std::io::Read;
 
 pub fn find_matches(
@@ -15,53 +17,37 @@ pub fn find_matches(
     Ok(())
 }
 
-#[derive(Parser, Debug)]
-#[command(version, about, long_about = None)]
-pub struct Cli {
-    #[arg(short, long, action = clap::ArgAction::SetTrue)]
-    pub count: Option<bool>,
-    #[arg(short, long, action = clap::ArgAction::SetTrue)]
-    pub line: Option<bool>,
-    #[arg(short='H', long, action = clap::ArgAction::SetTrue)]
-    pub heading: Option<bool>,
-    #[arg(short = 'C', long, default_value_t = 2)]
-    pub context: usize,
-    pub pattern: String,
-    pub path: Option<Vec<std::path::PathBuf>>,
+fn read_file(path: &std::path::PathBuf) -> Result<String, anyhow::Error> {
+    let content: String = std::fs::read_to_string(path)
+        .with_context(|| format!("Error reading file `{:?}`", path))?;
+
+    Ok(content)
 }
 
-impl Cli {
-    fn read_file(&self, path: &std::path::PathBuf) -> Result<String, anyhow::Error> {
-        let content: String = std::fs::read_to_string(path)
-            .with_context(|| format!("Error reading file `{:?}`", path))?;
+fn read_standard_input() -> Result<String, anyhow::Error> {
+    let mut content = String::new();
+    std::io::stdin()
+        .read_to_string(&mut content)
+        .with_context(|| format!("Error reading standard input"))?;
+    Ok(content)
+}
 
-        Ok(content)
-    }
-
-    fn read_standard_input(&self) -> Result<String, anyhow::Error> {
-        let mut content = String::new();
-        std::io::stdin()
-            .read_to_string(&mut content)
-            .with_context(|| format!("Error reading standard input"))?;
-        Ok(content)
-    }
-
-    pub fn process_query(&self) -> Result<(), anyhow::Error> {
-        match &self.path {
-            Some(paths) => {
-                for p in paths {
-                    let content: String = self.read_file(p)?;
-                    find_matches(&content, &self.pattern, &mut std::io::stdout())?;
-                }
-            }
-            None => {
-                let content: String = self.read_standard_input()?;
-                find_matches(&content, &self.pattern, &mut std::io::stdout())?;
+pub fn process_query(cli: &Cli) -> Result<(), anyhow::Error> {
+    match &cli.path {
+        Some(paths) => {
+            for p in paths {
+                let content: String = read_file(&p)?;
+                find_matches(&content, &cli.pattern, &mut std::io::stdout())?;
             }
         }
-        Ok(())
+        None => {
+            let content: String = read_standard_input()?;
+            find_matches(&content, &cli.pattern, &mut std::io::stdout())?;
+        }
     }
+    Ok(())
 }
+
 #[cfg(test)]
 mod tests {
 

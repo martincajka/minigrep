@@ -4,8 +4,8 @@ use log::debug;
 
 fn main() -> Result<()> {
     env_logger::init();
-    let args = minigrep::Cli::parse();
+    let args = minigrep::cli::Cli::parse();
     debug!("{:?}", args);
-    args.process_query()?;
+    minigrep::process_query(&args)?;
     Ok(())
 }
