@@ -7,6 +7,17 @@ fn main() -> Result<()> {
     let args = minigrep::cli::Cli::parse();
     debug!("{:?}", args);
     let readers = minigrep::input_reader::create_readers(&args)?;
-    minigrep::find_matches(readers, &args.pattern, std::io::stdout())?;
+    for reader in readers {
+        match args.count {
+            Some(true) => {
+                minigrep::find_matches_counter(reader, &args.pattern, std::io::stdout())?;
+            }
+            Some(false) => {
+                minigrep::find_matches(reader, &args.pattern, std::io::stdout())?;
+            }
+            _ => (),
+        }
+    }
+
     Ok(())
 }
