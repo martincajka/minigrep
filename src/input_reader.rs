@@ -1,10 +1,12 @@
 use crate::Cli;
+use std::ffi::OsString;
 use std::fs::File;
 use std::io::{self, BufRead, BufReader};
 use std::path::Path;
 
 pub struct InputReader {
     reader: Box<dyn BufRead>,
+    file_name: OsString,
 }
 
 impl InputReader {
@@ -13,6 +15,7 @@ impl InputReader {
         let reader = BufReader::new(file);
         Ok(Self {
             reader: Box::new(reader),
+            file_name: path.as_os_str().to_os_string(),
         })
     }
 
@@ -21,11 +24,16 @@ impl InputReader {
         let reader = stdin.lock();
         Self {
             reader: Box::new(reader),
+            file_name: OsString::from("(standard input)"),
         }
     }
 
     pub fn get_lines(self) -> io::Result<impl Iterator<Item = io::Result<String>>> {
         Ok(self.reader.lines())
+    }
+
+    pub fn get_file(&self) -> OsString {
+        self.file_name.clone()
     }
 }
 

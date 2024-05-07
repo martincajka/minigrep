@@ -10,10 +10,10 @@ fn main() -> Result<()> {
     for reader in readers {
         match args.count {
             Some(true) => {
-                minigrep::find_matches_counter(reader, &args.pattern, std::io::stdout())?;
+                minigrep::find_matches_counter(reader, &args, std::io::stdout())?;
             }
             Some(false) => {
-                minigrep::find_matches(reader, &args.pattern, std::io::stdout())?;
+                minigrep::find_matches(reader, &args, std::io::stdout())?;
             }
             _ => (),
         }

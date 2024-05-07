@@ -71,3 +71,21 @@ How to implement:
     - if no files are provided, read from standard input
     - if 1 file is provided, read from that file
     - if multiple files are provided, read from those files
+
+
+
+  Specification for writing into output:
+  - if the file name is provided, write the file name
+    - can be combined with line number, color, context
+  - if the line number is provided, write the line number
+    - can be combined with file name, color, context
+  - if the color is provided, colorize the actual matched value
+    - can be combined with file name, line number, context
+  - if the context is provided, include context (by default 2) and can be specified to some other value 3, 4, 5, etc.
+    - can be combined with file name, line number, color
+    - context is formatted as:
+      - file name - line number - actual line
+      - file name:line number:actual line
+      - file name - line number - actual line
+  - if the count is provided, write the count of the matched values
+    - can be combined only with file name
