@@ -6,7 +6,7 @@ use std::path::Path;
 
 pub struct InputReader {
     reader: Box<dyn BufRead>,
-    file_name: OsString,
+    input_source_name: OsString,
 }
 
 impl InputReader {
@@ -15,7 +15,7 @@ impl InputReader {
         let reader = BufReader::new(file);
         Ok(Self {
             reader: Box::new(reader),
-            file_name: path.as_os_str().to_os_string(),
+            input_source_name: path.as_os_str().to_os_string(),
         })
     }
 
@@ -24,7 +24,7 @@ impl InputReader {
         let reader = stdin.lock();
         Self {
             reader: Box::new(reader),
-            file_name: OsString::from("(standard input)"),
+            input_source_name: OsString::from("(standard input)"),
         }
     }
 
@@ -32,8 +32,8 @@ impl InputReader {
         Ok(self.reader.lines())
     }
 
-    pub fn get_file(&self) -> OsString {
-        self.file_name.clone()
+    pub fn get_input_source_name(&self) -> OsString {
+        self.input_source_name.clone()
     }
 }
 

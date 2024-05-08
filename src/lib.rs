@@ -11,7 +11,10 @@ pub fn find_matches(
     args: &Cli,
     mut writer: impl std::io::Write,
 ) -> Result<(), anyhow::Error> {
-    let file_name = reader.get_file().to_string_lossy().into_owned();
+    let file_name = reader
+        .get_input_source_name()
+        .to_string_lossy()
+        .into_owned();
     let lines = reader.get_lines()?;
     for (i, line_result) in lines.enumerate() {
         let line = line_result?;
@@ -34,7 +37,10 @@ pub fn find_matches_counter(
     args: &Cli,
     mut writer: impl std::io::Write,
 ) -> Result<(), anyhow::Error> {
-    let file_name = reader.get_file().to_string_lossy().into_owned();
+    let file_name = reader
+        .get_input_source_name()
+        .to_string_lossy()
+        .into_owned();
     let lines = reader.get_lines()?;
     let mut count: usize = 0;
     for line_result in lines {
