@@ -32,8 +32,11 @@ impl InputReader {
         Ok(self.reader.lines())
     }
 
-    pub fn get_input_source_name(&self) -> OsString {
-        self.input_source_name.clone()
+    pub fn get_input_source_name(&self) -> String {
+        self.input_source_name
+            .clone()
+            .to_string_lossy()
+            .into_owned()
     }
 }
 

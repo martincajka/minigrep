@@ -11,18 +11,15 @@ pub fn find_matches(
     args: &Cli,
     mut writer: impl std::io::Write,
 ) -> Result<(), anyhow::Error> {
-    let file_name = reader
-        .get_input_source_name()
-        .to_string_lossy()
-        .into_owned();
+    let input_name = reader.get_input_source_name();
     let lines = reader.get_lines()?;
     for (i, line_result) in lines.enumerate() {
         let line = line_result?;
         if line.contains(&args.pattern) {
             let prefix = match (args.line, args.heading) {
-                (Some(true), Some(true)) => format!("{}:{}:", file_name, i + 1),
+                (Some(true), Some(true)) => format!("{}:{}:", input_name, i + 1),
                 (Some(true), _) => format!("{}:", i + 1),
-                (_, Some(true)) => format!("{}:", file_name),
+                (_, Some(true)) => format!("{}:", input_name),
                 _ => String::new(),
             };
             writeln!(writer, "{}{}", prefix, line)?;
@@ -37,10 +34,7 @@ pub fn find_matches_counter(
     args: &Cli,
     mut writer: impl std::io::Write,
 ) -> Result<(), anyhow::Error> {
-    let file_name = reader
-        .get_input_source_name()
-        .to_string_lossy()
-        .into_owned();
+    let input_name = reader.get_input_source_name();
     let lines = reader.get_lines()?;
     let mut count: usize = 0;
     for line_result in lines {
@@ -50,7 +44,7 @@ pub fn find_matches_counter(
         }
     }
     if let Some(true) = args.heading {
-        writeln!(writer, "{}:{}", file_name, count)?;
+        writeln!(writer, "{}:{}", input_name, count)?;
     } else {
         writeln!(writer, "{}", count)?;
     }
