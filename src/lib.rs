@@ -51,6 +51,28 @@ pub fn find_matches_counter(
     Ok(())
 }
 
+pub fn find_matches_context(
+    reader: InputReader,
+    args: &Cli,
+    mut writer: impl std::io::Write,
+) -> Result<(), anyhow::Error> {
+    let input_name = reader.get_input_source_name();
+    let lines = reader.get_lines()?;
+    let mut count: usize = 0;
+    for line_result in lines {
+        let line = line_result?;
+        if line.contains(&args.pattern) {
+            count += 1;
+        }
+    }
+    if let Some(true) = args.heading {
+        writeln!(writer, "{}:{}", input_name, count)?;
+    } else {
+        writeln!(writer, "{}", count)?;
+    }
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
 

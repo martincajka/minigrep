@@ -8,14 +8,16 @@ fn main() -> Result<()> {
     debug!("{:?}", args);
     let readers = minigrep::input_reader::create_readers(&args)?;
     for reader in readers {
-        match args.count {
-            Some(true) => {
+        match (args.count, args.context) {
+            (Some(true), _) => {
                 minigrep::find_matches_counter(reader, &args, std::io::stdout())?;
             }
-            Some(false) => {
+            (Some(false), 0) => {
                 minigrep::find_matches(reader, &args, std::io::stdout())?;
             }
-            _ => (),
+            _ => {
+                minigrep::find_matches_context(reader, &args, std::io::stdout())?;
+            }
         }
     }
 
