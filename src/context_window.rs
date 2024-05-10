@@ -74,7 +74,7 @@ impl ContextWindow {
 
     pub fn write(&mut self, mut writer: impl std::io::Write) -> std::io::Result<()> {
         for line in self.before_lines.iter() {
-            writeln!(writer, "{}", line)?;
+            writeln!(writer, "-{}", line)?;
         }
         for (i, line) in self.matched_plus_after_lines.iter().enumerate() {
             if self
@@ -83,7 +83,7 @@ impl ContextWindow {
             {
                 writeln!(writer, "*{}", line)?; // mark matched lines with *
             } else {
-                writeln!(writer, " {}", line)?; // mark context lines with space
+                writeln!(writer, "-{}", line)?; // mark context lines with space
             }
         }
         self.first_line =

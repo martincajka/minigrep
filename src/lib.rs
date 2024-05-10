@@ -4,6 +4,7 @@ pub mod input_reader;
 
 use anyhow::Result;
 use cli::Cli;
+use context_window::ContextWindow;
 use input_reader::InputReader;
 
 pub fn find_matches(
@@ -58,18 +59,17 @@ pub fn find_matches_context(
 ) -> Result<(), anyhow::Error> {
     let input_name = reader.get_input_source_name();
     let lines = reader.get_lines()?;
-    let mut count: usize = 0;
-    for line_result in lines {
-        let line = line_result?;
-        if line.contains(&args.pattern) {
-            count += 1;
+    let mut context = ContextWindow::new(args.context, args.context);
+    for (i, line_result) in lines.enumerate() {
+        if context.is_ready_to_write_out() {
+            context.write(&mut writer)?;
         }
+        let line = line_result?;
+        let is_match = line.contains(&args.pattern);
+        context.add_line(&line, is_match);
     }
-    if let Some(true) = args.heading {
-        writeln!(writer, "{}:{}", input_name, count)?;
-    } else {
-        writeln!(writer, "{}", count)?;
-    }
+    context.finalize_after_last_line(&mut writer)?;
+
     Ok(())
 }
 
