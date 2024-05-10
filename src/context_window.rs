@@ -26,7 +26,32 @@ impl ContextWindow {
     }
 
     pub fn add_line(&mut self, line: &str, is_match: bool) -> () {
-        todo!()
+        match (is_match, self.is_match_indices.len() == 0) {
+            (true, true) => {
+                self.before_capacity_counter = 0;
+                self.is_match_indices
+                    .push(self.before_lines.len() + self.is_match_indices.len());
+                self.matched_plus_after_lines.push(line.to_string());
+            }
+            (true, false) => {
+                self.is_match_indices
+                    .push(self.before_lines.len() + self.is_match_indices.len());
+                self.matched_plus_after_lines.push(line.to_string());
+                self.after_capacity_counter = self.after_capacity;
+            }
+            (false, false) => {
+                self.after_capacity_counter -= 1;
+                self.matched_plus_after_lines.push(line.to_string());
+            }
+            (false, true) => {
+                if self.before_capacity_counter == 0 {
+                    self.before_lines.pop_front();
+                } else {
+                    self.before_capacity_counter -= 1;
+                }
+                self.before_lines.push_back(line.to_string())
+            }
+        }
     }
 
     pub fn finalize_after_last_line(&mut self, writer: impl std::io::Write) -> std::io::Result<()> {
