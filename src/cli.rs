@@ -11,6 +11,8 @@ pub struct Cli {
     pub heading: Option<bool>,
     #[arg(short = 'C', long, default_value_t = 2)]
     pub context: usize,
+    #[arg(long, action = clap::ArgAction::SetTrue)]
+    pub color: Option<bool>,
     pub pattern: String,
     pub path: Option<Vec<std::path::PathBuf>>,
 }
