@@ -7,8 +7,7 @@ pub struct ContextWindow {
     after_capacity: usize,
     before_capacity_counter: usize,
     after_capacity_counter: usize,
-    is_match_indices: bool,
-    first_line: usize,
+    has_any_matches: bool,
 }
 
 impl ContextWindow {
@@ -20,19 +19,18 @@ impl ContextWindow {
             after_capacity,
             before_capacity_counter: before_capacity,
             after_capacity_counter: after_capacity,
-            is_match_indices: false,
-            first_line: 0,
+            has_any_matches: false,
         }
     }
 
     pub fn add_line(&mut self, line: &str, is_match: bool) -> () {
-        match (is_match, self.is_match_indices) {
+        match (is_match, self.has_any_matches) {
             (true, true) => {
                 self.matched_plus_after_lines.push((line.to_string(), true));
             }
             (true, false) => {
                 self.before_capacity_counter = 0;
-                self.is_match_indices = true;
+                self.has_any_matches = true;
                 self.matched_plus_after_lines.push((line.to_string(), true));
                 self.after_capacity_counter = self.after_capacity;
             }
@@ -53,14 +51,14 @@ impl ContextWindow {
     }
 
     pub fn finalize_after_last_line(&mut self, writer: impl std::io::Write) -> std::io::Result<()> {
-        if self.is_match_indices {
+        if self.has_any_matches {
             return self.write(writer);
         }
         Ok(())
     }
 
     pub fn is_ready_to_write_out(&self) -> bool {
-        if self.is_match_indices
+        if self.has_any_matches
             && self.before_capacity_counter == 0
             && self.after_capacity_counter == 0
         {
@@ -81,11 +79,10 @@ impl ContextWindow {
                 writeln!(writer, "-{}", line.0)?; // mark context lines with space
             }
         }
-        self.first_line =
-            self.first_line + self.before_lines.len() + self.matched_plus_after_lines.len();
+
         self.before_lines.clear();
         self.matched_plus_after_lines.clear();
-        self.is_match_indices = false;
+        self.has_any_matches = false;
         self.before_capacity_counter = self.before_capacity;
         self.after_capacity_counter = self.after_capacity;
         Ok(())
@@ -105,7 +102,7 @@ mod tests {
         assert_eq!(context.after_capacity_counter, 0);
         assert_eq!(context.before_lines.len(), 0);
         assert_eq!(context.matched_plus_after_lines.len(), 0);
-        assert_eq!(context.is_match_indices, false);
+        assert_eq!(context.has_any_matches, false);
         Ok(())
     }
 }
