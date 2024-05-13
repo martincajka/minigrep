@@ -9,7 +9,7 @@ pub struct Cli {
     pub line: Option<bool>,
     #[arg(short='H', long, action = clap::ArgAction::SetTrue)]
     pub heading: Option<bool>,
-    #[arg(short = 'C', long, default_value_t = 2)]
+    #[arg(short = 'C', long, default_value_t = 0)]
     pub context: usize,
     #[arg(long, action = clap::ArgAction::SetTrue)]
     pub color: Option<bool>,

@@ -2,12 +2,12 @@ use std::collections::VecDeque;
 
 pub struct ContextWindow {
     before_lines: VecDeque<String>,
-    matched_plus_after_lines: Vec<String>,
+    matched_plus_after_lines: Vec<(String, bool)>,
     before_capacity: usize,
     after_capacity: usize,
     before_capacity_counter: usize,
     after_capacity_counter: usize,
-    is_match_indices: Vec<usize>,
+    is_match_indices: bool,
     first_line: usize,
 }
 
@@ -20,28 +20,28 @@ impl ContextWindow {
             after_capacity,
             before_capacity_counter: before_capacity,
             after_capacity_counter: after_capacity,
-            is_match_indices: Vec::new(),
+            is_match_indices: false,
             first_line: 0,
         }
     }
 
     pub fn add_line(&mut self, line: &str, is_match: bool) -> () {
-        match (is_match, self.is_match_indices.len() == 0) {
+        match (is_match, self.is_match_indices) {
             (true, true) => {
-                self.before_capacity_counter = 0;
-                self.is_match_indices.push(self.is_match_indices.len());
-                self.matched_plus_after_lines.push(line.to_string());
+                self.matched_plus_after_lines.push((line.to_string(), true));
             }
             (true, false) => {
-                self.is_match_indices.push(self.is_match_indices.len());
-                self.matched_plus_after_lines.push(line.to_string());
+                self.before_capacity_counter = 0;
+                self.is_match_indices = true;
+                self.matched_plus_after_lines.push((line.to_string(), true));
                 self.after_capacity_counter = self.after_capacity;
             }
-            (false, false) => {
-                self.after_capacity_counter -= 1;
-                self.matched_plus_after_lines.push(line.to_string());
-            }
             (false, true) => {
+                self.after_capacity_counter -= 1;
+                self.matched_plus_after_lines
+                    .push((line.to_string(), false));
+            }
+            (false, false) => {
                 if self.before_capacity_counter == 0 {
                     self.before_lines.pop_front();
                 } else {
@@ -53,14 +53,14 @@ impl ContextWindow {
     }
 
     pub fn finalize_after_last_line(&mut self, writer: impl std::io::Write) -> std::io::Result<()> {
-        if !self.is_match_indices.is_empty() {
+        if self.is_match_indices {
             return self.write(writer);
         }
         Ok(())
     }
 
     pub fn is_ready_to_write_out(&self) -> bool {
-        if !self.is_match_indices.is_empty()
+        if self.is_match_indices
             && self.before_capacity_counter == 0
             && self.after_capacity_counter == 0
         {
@@ -74,20 +74,38 @@ impl ContextWindow {
         for line in self.before_lines.iter() {
             writeln!(writer, "-{}", line)?;
         }
-        for (i, line) in self.matched_plus_after_lines.iter().enumerate() {
-            if self.is_match_indices.contains(&(i)) {
-                writeln!(writer, "*{}", line)?; // mark matched lines with *
+        for line in self.matched_plus_after_lines.iter() {
+            if line.1 {
+                writeln!(writer, "*{}", line.0)?; // mark matched lines with *
             } else {
-                writeln!(writer, "-{}", line)?; // mark context lines with space
+                writeln!(writer, "-{}", line.0)?; // mark context lines with space
             }
         }
         self.first_line =
             self.first_line + self.before_lines.len() + self.matched_plus_after_lines.len();
         self.before_lines.clear();
         self.matched_plus_after_lines.clear();
-        self.is_match_indices.clear();
+        self.is_match_indices = false;
         self.before_capacity_counter = self.before_capacity;
         self.after_capacity_counter = self.after_capacity;
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::ContextWindow;
+
+    #[test]
+    fn context_init_for_before_0_after_0() -> Result<(), anyhow::Error> {
+        let context = ContextWindow::new(0, 0);
+        assert_eq!(context.after_capacity, 0);
+        assert_eq!(context.before_capacity, 0);
+        assert_eq!(context.before_capacity_counter, 0);
+        assert_eq!(context.after_capacity_counter, 0);
+        assert_eq!(context.before_lines.len(), 0);
+        assert_eq!(context.matched_plus_after_lines.len(), 0);
+        assert_eq!(context.is_match_indices, false);
         Ok(())
     }
 }
