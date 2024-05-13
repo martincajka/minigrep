@@ -29,13 +29,11 @@ impl ContextWindow {
         match (is_match, self.is_match_indices.len() == 0) {
             (true, true) => {
                 self.before_capacity_counter = 0;
-                self.is_match_indices
-                    .push(self.before_lines.len() + self.is_match_indices.len());
+                self.is_match_indices.push(self.is_match_indices.len());
                 self.matched_plus_after_lines.push(line.to_string());
             }
             (true, false) => {
-                self.is_match_indices
-                    .push(self.before_lines.len() + self.is_match_indices.len());
+                self.is_match_indices.push(self.is_match_indices.len());
                 self.matched_plus_after_lines.push(line.to_string());
                 self.after_capacity_counter = self.after_capacity;
             }
@@ -77,10 +75,7 @@ impl ContextWindow {
             writeln!(writer, "-{}", line)?;
         }
         for (i, line) in self.matched_plus_after_lines.iter().enumerate() {
-            if self
-                .is_match_indices
-                .contains(&(self.first_line + i + self.before_lines.len()))
-            {
+            if self.is_match_indices.contains(&(i)) {
                 writeln!(writer, "*{}", line)?; // mark matched lines with *
             } else {
                 writeln!(writer, "-{}", line)?; // mark context lines with space
