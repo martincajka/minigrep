@@ -59,6 +59,7 @@ pub fn find_matches_context(
 ) -> Result<(), anyhow::Error> {
     let input_name = reader.get_input_source_name();
     let lines = reader.get_lines()?;
+
     let mut context = ContextWindow::new(args.context, args.context);
     for (i, line_result) in lines.enumerate() {
         if context.is_ready_to_write_out() {
@@ -66,7 +67,14 @@ pub fn find_matches_context(
         }
         let line = line_result?;
         let is_match = line.contains(&args.pattern);
-        context.add_line(&line, is_match);
+        let mut prefix = match (args.line, args.heading) {
+            (Some(true), Some(true)) => format!("{}:{}:", input_name, i + 1),
+            (Some(true), _) => format!("{}:", i + 1),
+            (_, Some(true)) => format!("{}:", input_name),
+            _ => String::new(),
+        };
+        prefix.push_str(&line);
+        context.add_line(&prefix, is_match);
     }
     context.finalize_after_last_line(&mut writer)?;
 
