@@ -70,7 +70,7 @@ pub fn find_matches_context(
         if context.is_ready_to_write_out() {
             context.write(&mut writer)?;
         }
-        let line = line_result?;
+        let mut line = line_result?;
         let is_match = line.contains(&args.pattern);
         let mut prefix = match (args.line, args.heading) {
             (Some(true), Some(true)) => format!("{}:{}:", input_name, i + 1),
@@ -78,6 +78,12 @@ pub fn find_matches_context(
             (_, Some(true)) => format!("{}:", input_name),
             _ => String::new(),
         };
+        if is_match {
+            line = match args.color {
+                Some(true) => line.replace(&args.pattern, &args.pattern.red().to_string()),
+                _ => line,
+            };
+        }
         prefix.push_str(&line);
         context.add_line(&prefix, is_match);
     }
