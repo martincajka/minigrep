@@ -4,6 +4,7 @@ pub mod input_reader;
 
 use anyhow::Result;
 use cli::Cli;
+use colored::*;
 use context_window::ContextWindow;
 use input_reader::InputReader;
 
@@ -17,6 +18,10 @@ pub fn find_matches(
     for (i, line_result) in lines.enumerate() {
         let line = line_result?;
         if line.contains(&args.pattern) {
+            let line = match args.color {
+                Some(true) => line.replace(&args.pattern, &args.pattern.red().to_string()),
+                _ => line,
+            };
             let prefix = match (args.line, args.heading) {
                 (Some(true), Some(true)) => format!("{}:{}:", input_name, i + 1),
                 (Some(true), _) => format!("{}:", i + 1),
