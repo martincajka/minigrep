@@ -22,12 +22,7 @@ pub fn find_matches(
                 Some(true) => line.replace(&args.pattern, &args.pattern.red().to_string()),
                 _ => line,
             };
-            let prefix = match (args.line, args.heading) {
-                (Some(true), Some(true)) => format!("{}:{}:", input_name, i + 1),
-                (Some(true), _) => format!("{}:", i + 1),
-                (_, Some(true)) => format!("{}:", input_name),
-                _ => String::new(),
-            };
+            let prefix = generate_prefix(&input_name, i, args);
             writeln!(writer, "{}{}", prefix, line)?;
         }
     }
@@ -72,12 +67,7 @@ pub fn find_matches_context(
         }
         let mut line = line_result?;
         let is_match = line.contains(&args.pattern);
-        let mut prefix = match (args.line, args.heading) {
-            (Some(true), Some(true)) => format!("{}:{}:", input_name, i + 1),
-            (Some(true), _) => format!("{}:", i + 1),
-            (_, Some(true)) => format!("{}:", input_name),
-            _ => String::new(),
-        };
+        let mut prefix = generate_prefix(&input_name, i, args);
         if is_match {
             line = match args.color {
                 Some(true) => line.replace(&args.pattern, &args.pattern.red().to_string()),
@@ -90,6 +80,15 @@ pub fn find_matches_context(
     context.finalize_after_last_line(&mut writer)?;
 
     Ok(())
+}
+
+fn generate_prefix(input_name: &str, i: usize, args: &Cli) -> String {
+    match (args.line, args.heading) {
+        (Some(true), Some(true)) => format!("{}:{}:", input_name, i + 1),
+        (Some(true), _) => format!("{}:", i + 1),
+        (_, Some(true)) => format!("{}:", input_name),
+        _ => String::new(),
+    }
 }
 
 #[cfg(test)]
