@@ -1,6 +1,6 @@
 use clap::{command, Parser};
 
-#[derive(Parser, Debug)]
+#[derive(Parser, Debug, Default)]
 #[command(version, about, long_about = None)]
 pub struct Cli {
     #[arg(short, long, action = clap::ArgAction::SetTrue)]

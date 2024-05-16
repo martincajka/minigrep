@@ -49,3 +49,62 @@ pub fn create_readers(cli: &Cli) -> io::Result<Vec<InputReader>> {
         _ => Ok(vec![InputReader::from_stdin()]),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use assert_fs::fixture::FileWriteStr;
+
+    use super::*;
+
+    #[test]
+    fn test_input_reader_from_file() -> Result<(), Box<dyn std::error::Error>> {
+        let temp_file = assert_fs::NamedTempFile::new("test.txt")?;
+        temp_file.write_str("Hello, world")?;
+
+        let input_reader = InputReader::from_file(temp_file.path())?;
+        let lines: Vec<_> = input_reader.get_lines()?.collect::<Result<_, _>>()?;
+        assert_eq!(lines, vec!["Hello, world"]);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_input_reader_from_stdin() {
+        let input_reader = InputReader::from_stdin();
+        assert_eq!(input_reader.get_input_source_name(), "(standard input)");
+    }
+
+    #[test]
+    fn test_create_readers_from_file() -> Result<(), Box<dyn std::error::Error>> {
+        let temp_file = assert_fs::NamedTempFile::new("test.txt")?;
+        temp_file.write_str("Hello, world")?;
+
+        let cli = Cli {
+            path: Some(vec![temp_file.path().to_path_buf()]),
+            ..Default::default()
+        };
+
+        let readers = create_readers(&cli)?;
+        assert_eq!(readers.len(), 1);
+        assert_eq!(
+            readers[0].get_input_source_name(),
+            temp_file.path().to_string_lossy()
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_create_readers_from_stdin() -> io::Result<()> {
+        let cli = Cli {
+            path: None,
+            ..Default::default()
+        };
+
+        let readers = create_readers(&cli)?;
+        assert_eq!(readers.len(), 1);
+        assert_eq!(readers[0].get_input_source_name(), "(standard input)");
+
+        Ok(())
+    }
+}
